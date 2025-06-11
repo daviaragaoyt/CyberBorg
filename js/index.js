@@ -68,7 +68,7 @@ const overlay = {
     opacity: 0,
 }
 
-let level = 2
+let level = 1
 let levels = {
     1: {
         init: () => {
