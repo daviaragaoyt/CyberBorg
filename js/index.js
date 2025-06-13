@@ -22,19 +22,19 @@ const player = new Player({
     animations: {
         idleRight: {
             frameRate: 4,
-            frameBuffer: 8,
+            frameBuffer: 20,
             loop: true,
             imageSrc: '../assets/player/idle.png',
         },
         runRight: {
-            frameRate: 4,
-            frameBuffer: 6,
+            frameRate: 6,
+            frameBuffer: 20,
             loop: true,
             imageSrc: '../assets/player/running.png',
         },
         enterDoor: {
             frameRate: 8,
-            frameBuffer: 4,
+            frameBuffer: 20,
             loop: false,
             imageSrc: '../assets/player/idle.png',
             onComplete: () => {

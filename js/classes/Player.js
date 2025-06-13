@@ -1,3 +1,4 @@
+// js/classes/Player.js
 class Player extends Sprite {
     constructor({ collisionBlocks = [], imageSrc, frameRate, animations, loop }) {
         super({
@@ -5,11 +6,8 @@ class Player extends Sprite {
             frameRate,
             animations,
             loop,
-            scale: 4 // Aumentamos a escala para compensar o tamanho menor
+            scale: 3
         })
-
-        this.width = 32 // Largura fixa do frame
-        this.height = 32 // Altura fixa do frame
 
         this.position = {
             x: 200,
@@ -21,14 +19,13 @@ class Player extends Sprite {
             y: 0
         }
 
-        // Ajuste da hitbox para o novo tamanho
         this.hitbox = {
             position: {
-                x: this.position.x + 8,
-                y: this.position.y + 8
+                x: this.position.x + 35,
+                y: this.position.y + 26
             },
-            width: 16,
-            height: 16
+            width: 14,
+            height: 27
         }
 
         this.gravity = 0.5
@@ -116,60 +113,19 @@ class Player extends Sprite {
 
         if (keys.d.pressed) {
             this.velocity.x = this.speed
-            this.facingRight = true
-            if (this.velocity.y === 0) { // Só muda animação se não estiver pulando
+            this.lastDirection = 'right'
+            if (!this.isJumping) {
                 this.switchSprite('runRight')
             }
         } else if (keys.a.pressed) {
             this.velocity.x = -this.speed
-            this.facingRight = false
-            if (this.velocity.y === 0) { // Só muda animação se não estiver pulando
+            this.lastDirection = 'left'
+            if (!this.isJumping) {
                 this.switchSprite('runRight')
             }
-        } else {
-            if (this.velocity.y === 0) { // Só volta para idle se não estiver pulando
-                this.switchSprite('idleRight')
-            }
+        } else if (!this.isJumping) {
+            this.switchSprite('idleRight')
         }
-    }
-
-    // Ajuste no método draw para melhorar o flip da sprite
-    draw() {
-        if (!this.loaded) return
-
-        const cropbox = {
-            position: {
-                x: this.currentFrame * (this.image.width / this.frameRate),
-                y: 0,
-            },
-            width: this.image.width / this.frameRate,
-            height: this.image.height,
-        }
-
-        c.save()
-
-        if (!this.facingRight) {
-            c.translate(this.position.x + this.width * this.scale, this.position.y)
-            c.scale(-1, 1)
-        } else {
-            c.translate(this.position.x, this.position.y)
-        }
-
-        c.drawImage(
-            this.image,
-            cropbox.position.x,
-            cropbox.position.y,
-            cropbox.width,
-            cropbox.height,
-            0,
-            0,
-            this.width * this.scale,
-            this.height * this.scale
-        )
-
-        c.restore()
-
-        this.updateFrames()
     }
 
     update() {
