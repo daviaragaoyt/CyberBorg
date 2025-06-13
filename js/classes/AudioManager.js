@@ -11,7 +11,6 @@ class AudioManager {
             hologramAudio1: new Audio('./assets/sounds/Recording.m4a'),
             hologramAudio2: new Audio('./assets/sounds/Recording (2).m4a'),
 
-            error: new Audio('./assets/sounds/error.mp3')
         }
 
         // Configurações de volume

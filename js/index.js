@@ -112,7 +112,7 @@ let levels = {
             ]
 
             holograms = [
-                // Tutorial de controles - exatamente na posição inicial do player
+                // Tutorial de controles - sem áudio
                 new Hologram({
                     position: {
                         x: 120,
@@ -122,13 +122,13 @@ let levels = {
                     imageSrc: '../assets/objects/carta-hologram.jpeg'
                 }),
 
-                // Carta misteriosa
+                // Carta misteriosa - com áudio
                 new Hologram({
                     position: { x: 1900, y: 630 },
                     title: 'CARTA MISTERIOSA',
                     text: 'Uma mensagem antiga foi encontrada...',
                     imageSrc: '../assets/objects/carta-hologram1.jpg',
-                    audioTrack: 'hologramAudio1' // Primeiro áudio
+                    audioTrack: 'hologramAudio1'
                 })
             ]
         },

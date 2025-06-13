@@ -28,8 +28,8 @@ window.addEventListener('keydown', (event) => {
             for (let i = 0; i < holograms.length; i++) {
                 const hologram = holograms[i]
                 if (hologram.isActive) {
-                    // Verifica se é o primeiro holograma do level 1 ou 2
-                    if ((level === 1 || level === 2) && i === 0 && !hologram.audioPlayed) {
+                    // Verifica se é o segundo holograma do level 1 ou primeiro do level 2
+                    if (((level === 1 && i === 1) || (level === 2 && i === 0)) && !hologram.audioPlayed) {
                         hologram.audioPlayed = true
                         audioManager.playHologramAudio(level)
                     }
@@ -38,13 +38,14 @@ window.addEventListener('keydown', (event) => {
                 }
             }
 
+            // Verifica interação com o computador no level 3
             if (level === 3 && computer && computer.isActive && !computer.isSolved) {
                 computer.showDecodeModal()
                 return
             }
             break
 
-        case 'Escape': // Adiciona caso para tecla ESC
+        case 'Escape':
             const modal = document.getElementById('holo-modal')
             if (modal.style.display === 'block') {
                 modal.style.display = 'none'
