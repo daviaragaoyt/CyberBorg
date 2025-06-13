@@ -54,6 +54,18 @@ class Sprite {
             this.height * this.scale
         )
 
+        // Se for uma porta e o jogador estiver próximo, mostra o indicador "Pressione E"
+        if (this.frameRate === 5 && player.checkDoorCollision(this)) { // frameRate 5 identifica que é uma porta
+            c.fillStyle = '#00f7ff'
+            c.font = '24px Courier New'
+            c.textAlign = 'center'
+            c.fillText(
+                'Pressione E',
+                this.position.x + (this.width * this.scale) / 2,
+                this.position.y - 10
+            )
+        }
+
         this.updateFrames()
     }
 
@@ -71,6 +83,8 @@ class Sprite {
                 this.currentFrame++
             } else if (this.loop) {
                 this.currentFrame = 0
+            } else if (this.currentAnimation?.onComplete) {
+                this.currentAnimation.onComplete()
             }
         }
     }

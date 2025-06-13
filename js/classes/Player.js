@@ -1,4 +1,3 @@
-// Player.js
 class Player extends Sprite {
     constructor({ collisionBlocks = [], imageSrc, frameRate, animations, loop }) {
         super({
@@ -6,8 +5,11 @@ class Player extends Sprite {
             frameRate,
             animations,
             loop,
-            scale: 1
+            scale: 4 // Aumentamos a escala para compensar o tamanho menor
         })
+
+        this.width = 32 // Largura fixa do frame
+        this.height = 32 // Altura fixa do frame
 
         this.position = {
             x: 200,
@@ -19,23 +21,24 @@ class Player extends Sprite {
             y: 0
         }
 
+        // Ajuste da hitbox para o novo tamanho
         this.hitbox = {
             position: {
-                x: this.position.x + 35,
-                y: this.position.y + 26
+                x: this.position.x + 8,
+                y: this.position.y + 8
             },
-            width: 14,
-            height: 27
+            width: 16,
+            height: 16
         }
 
-        this.gravity = 1
-        this.speed = 6
-        this.jumpForce = -25
+        this.gravity = 0.5
+        this.speed = 5
+        this.jumpForce = -20
         this.collisionBlocks = collisionBlocks
         this.preventInput = false
         this.lastDirection = 'right'
-        this.scale = 4.0
-        this.frameBuffer = 5
+        this.isJumping = false
+        this.isGrounded = false
     }
 
     switchSprite(name) {
@@ -44,13 +47,8 @@ class Player extends Sprite {
         this.currentFrame = 0
         this.image = this.animations[name].image
         this.frameRate = this.animations[name].frameRate
-        this.frameBuffer = 20
-        this.elapsedFrames = 4
+        this.frameBuffer = this.animations[name].frameBuffer || 5
         this.loop = this.animations[name].loop
-
-        if (this.animations[name].onComplete && !this.loop) {
-            this.currentAnimation = this.animations[name]
-        }
     }
 
     draw() {
@@ -118,23 +116,60 @@ class Player extends Sprite {
 
         if (keys.d.pressed) {
             this.velocity.x = this.speed
-            this.lastDirection = 'right'
-            this.switchSprite('runRight')
+            this.facingRight = true
+            if (this.velocity.y === 0) { // Só muda animação se não estiver pulando
+                this.switchSprite('runRight')
+            }
         } else if (keys.a.pressed) {
             this.velocity.x = -this.speed
-            this.lastDirection = 'left'
-            this.switchSprite('runRight')
+            this.facingRight = false
+            if (this.velocity.y === 0) { // Só muda animação se não estiver pulando
+                this.switchSprite('runRight')
+            }
         } else {
-            this.switchSprite('idleRight')
+            if (this.velocity.y === 0) { // Só volta para idle se não estiver pulando
+                this.switchSprite('idleRight')
+            }
+        }
+    }
+
+    // Ajuste no método draw para melhorar o flip da sprite
+    draw() {
+        if (!this.loaded) return
+
+        const cropbox = {
+            position: {
+                x: this.currentFrame * (this.image.width / this.frameRate),
+                y: 0,
+            },
+            width: this.image.width / this.frameRate,
+            height: this.image.height,
         }
 
-        // Colisão com os limites do mapa
-        if (this.position.x < 0) {
-            this.position.x = 0
+        c.save()
+
+        if (!this.facingRight) {
+            c.translate(this.position.x + this.width * this.scale, this.position.y)
+            c.scale(-1, 1)
+        } else {
+            c.translate(this.position.x, this.position.y)
         }
-        if (this.position.x + this.width * this.scale > 4100) {
-            this.position.x = 4100 - this.width * this.scale
-        }
+
+        c.drawImage(
+            this.image,
+            cropbox.position.x,
+            cropbox.position.y,
+            cropbox.width,
+            cropbox.height,
+            0,
+            0,
+            this.width * this.scale,
+            this.height * this.scale
+        )
+
+        c.restore()
+
+        this.updateFrames()
     }
 
     update() {
@@ -198,9 +233,19 @@ class Player extends Sprite {
                     this.velocity.y = 0
                     const offset = this.hitbox.position.y - this.position.y + this.hitbox.height
                     this.position.y = collisionBlock.position.y - offset - 0.01
+                    this.isJumping = false
+                    this.isGrounded = true
                     break
                 }
             }
+        }
+    }
+
+    jump() {
+        if (this.isGrounded) {
+            this.velocity.y = this.jumpForce
+            this.isJumping = true
+            this.isGrounded = false
         }
     }
 }

@@ -1,39 +1,49 @@
-// js/classes/Hologram.js
-class Hologram {
-    constructor({ position, title, text, imageSrc, audioTrack = null }) {
-        this.position = position
-        this.title = title
-        this.text = text
-        this.imageSrc = imageSrc
-        this.audioTrack = audioTrack
-        this.audioPlayed = false
+// js/classes/Computer.js
+class Computer extends Sprite {
+    constructor({ position }) {
+        super({
+            position,
+            imageSrc: '../../assets/objects/comput-1.png',
+            scale: 2
+        })
 
         // Configurações da sprite
         this.loaded = false
         this.sprite = new Image()
-        this.sprite.src = './assets/objects/holograma-audio.png'
+        this.sprite.src = '../../assets/objects/comput-1.png'
         this.sprite.onload = () => {
             this.loaded = true
         }
 
-        this.frameWidth = 100
+        this.frameWidth = 128
         this.frameHeight = 128
-        this.currentFrame = 1
-        this.frameCount = 1
-        this.frameTimer = 1
-        this.frameInterval = 100
-        this.scale = 1
+        this.currentFrame = 0
+        this.frameCount = 3 // 3 frames para os 3 estados do computador
+        this.frameTimer = 0
+        this.frameInterval = 200 // Velocidade da animação
+        this.scale = 2
         this.width = this.frameWidth * this.scale
         this.height = this.frameHeight * this.scale
 
-        // Estado do holograma
+        // Estados
         this.isActive = false
+        this.isSolved = false
+
+        // Carregar todas as imagens do computador
+        this.frames = [
+            '../../assets/objects/comput-1.png',
+            '../../assets/objects/comput-2.png',
+            '../../assets/objects/comput-3.png'
+        ].map(src => {
+            const img = new Image()
+            img.src = src
+            return img
+        })
     }
 
     draw() {
         // Só desenha se a sprite estiver carregada
         if (!this.loaded) {
-            // Desenha um placeholder enquanto a sprite carrega
             c.fillStyle = 'rgba(0, 247, 255, 0.3)'
             c.fillRect(this.position.x, this.position.y, this.width, this.height)
             return
@@ -47,10 +57,10 @@ class Hologram {
         }
 
         try {
-            // Desenha a sprite
+            // Desenha o frame atual
             c.drawImage(
-                this.sprite,
-                this.currentFrame * this.frameWidth,
+                this.frames[this.currentFrame],
+                0,
                 0,
                 this.frameWidth,
                 this.frameHeight,
@@ -60,13 +70,13 @@ class Hologram {
                 this.height
             )
 
-            // Se o jogador estiver próximo, mostra a dica "Pressione E"
-            if (this.isActive) {
+            // Se o jogador estiver próximo e o computador não estiver resolvido
+            if (this.isActive && !this.isSolved) {
                 c.fillStyle = '#00f7ff'
                 c.font = '24px Courier New'
                 c.textAlign = 'center'
                 c.fillText(
-                    'Pressione E',
+                    'Pressione E para decodificar',
                     this.position.x + this.width / 2,
                     this.position.y - 10
                 )
@@ -76,7 +86,7 @@ class Hologram {
                 c.arc(
                     this.position.x + this.width / 2,
                     this.position.y + this.height / 2,
-                    30,
+                    40,
                     0,
                     Math.PI * 2
                 )
@@ -84,8 +94,7 @@ class Hologram {
                 c.fill()
             }
         } catch (error) {
-            console.error('Erro ao desenhar holograma:', error)
-            // Desenha um placeholder em caso de erro
+            console.error('Erro ao desenhar computador:', error)
             c.fillStyle = 'rgba(0, 247, 255, 0.3)'
             c.fillRect(this.position.x, this.position.y, this.width, this.height)
         }
@@ -100,29 +109,21 @@ class Hologram {
         )
     }
 
-    showModal() {
+    showDecodeModal() {
         const modal = document.getElementById('holo-modal')
         const modalTitle = document.getElementById('modal-title')
         const modalText = document.getElementById('modal-text')
 
-        modalTitle.textContent = this.title
+        modalTitle.textContent = 'TERMINAL DE DECODIFICAÇÃO'
         modalText.innerHTML = `
-            <div class="hologram-content">
-                <img src="${this.imageSrc}" alt="Holograma" class="hologram-image">
-                <p>${this.text}</p>
+            <div class="decode-content">
+                <p>Derrote a IA e salve o mundo!</p>
+                <p>Decodifique a mensagem em binário:</p>
+                <p class="binary-text">01010100 01100101 00100000 01110110 01100101 01101010 01101111 00100000 01101110 01101111 00100000 01110000 01110010 01101111 01111000 01101001 01101101 01101111 00100000 01101010 01101111 01100111 01101111 00100000 01000101 01110010 01101111 01101110 00101110 00101110 00101110 00100000 01000100 01110010 00101110 01010111</p>
+                <input type="text" id="decode-input" class="decode-input" placeholder="Digite a mensagem decodificada">
+                <button onclick="checkDecodedMessage()" class="decode-button">Confirmar</button>
             </div>
         `
         modal.style.display = 'block'
-
-        // Adicione esta verificação para os hologramas específicos
-        if ((level === 1 && this === holograms[0]) || (level === 2 && this === holograms[0])) {
-            if (!this.audioPlayed) { // Verifica se o áudio já foi tocado
-                this.audioPlayed = true
-                audioManager.stopMusic() // Para a música
-                audioManager.playSound(level === 1 ? 'hologramAudio1' : 'hologramAudio2', () => {
-                    audioManager.playLevelMusic(level) // Retoma a música após o áudio
-                })
-            }
-        }
     }
 }
